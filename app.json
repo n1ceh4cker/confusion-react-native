@@ -1,0 +1,12 @@
+{
+  "name": "confusion-react-native",
+  "displayName": "confusion-react-native",
+  "expo": {
+    "name": "confusion-react-native",
+    "slug": "confusion-react-native",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
