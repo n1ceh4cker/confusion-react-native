@@ -2,9 +2,14 @@ import React, { Component } from 'react'
 import { View, Text } from 'react-native'
 import { Card } from 'react-native-elements'
 import { ScrollView } from 'react-native-gesture-handler'
-import { DISHES } from '../shared/dishes'
-import { PROMOTIONS } from '../shared/promotions'
-import { LEADERS } from '../shared/leaders'
+import { connect } from 'react-redux'
+import { baseUrl } from '../shared/baseUrl'
+
+const mapStateToProps = (state) => ({
+    dishes: state.dishes,
+    promotions: state.promotions,
+    leaders: state.leaders
+})
 
 const RenderCard = ({ item }) => {
     return(
@@ -12,28 +17,24 @@ const RenderCard = ({ item }) => {
         <Card
             featuredTitle={item.name}
             featuredSubtitle={item.designation}
-            image={require('./images/uthappizza.png')}>
+            image={{ uri: baseUrl+ item.image  }}>
                 <Text style={{ margin:10 }}>{item.description}</Text>
         </Card>:
         <View></View>
     )
 }
-export default class Home extends Component {
-    state = {
-        dishes: DISHES,
-        promotions: PROMOTIONS,
-        leaders: LEADERS
-    }
+class Home extends Component {
     static navigationOptions = {
         title: 'Home'
     }
     render() {
         return (
             <ScrollView>
-                <RenderCard item={this.state.dishes.filter(dish => dish.featured)[0]} />            
-                <RenderCard item={this.state.promotions.filter(promotion => promotion.featured)[0]} />           
-                <RenderCard item={this.state.leaders.filter(leader => leader.featured)[0]} />
+                <RenderCard item={this.props.dishes.dishes.filter(dish => dish.featured)[0]} />            
+                <RenderCard item={this.props.promotions.promotions.filter(promotion => promotion.featured)[0]} />           
+                <RenderCard item={this.props.leaders.leaders.filter(leader => leader.featured)[0]} />
             </ScrollView>
         )
     }
 }
+export default connect(mapStateToProps)(Home)

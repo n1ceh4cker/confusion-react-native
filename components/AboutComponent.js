@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import { Text } from 'react-native';
 import { Card, ListItem } from 'react-native-elements';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
-import { LEADERS } from '../shared/leaders';
+import { connect } from 'react-redux'
+import { baseUrl } from '../shared/baseUrl';
 
-
-    
+const mapStateToProps = (state) => ({
+    leaders: state.leaders
+})
+  
 class About extends Component {
-    state = {
-        leaders: LEADERS
-    }
     render(){
         const renderLeader = ({ item }) => {
             return (
@@ -17,7 +17,7 @@ class About extends Component {
                     title={item.name}
                     subtitle={item.description}
                     hideChevron={true}
-                    leftAvatar={{source: require('./images/alberto.png')}}
+                    leftAvatar={{source: { uri: baseUrl + item.image }}}
                 />
             )
         }
@@ -29,7 +29,7 @@ class About extends Component {
                 </Card>
                 <Card title='Corporate Leadership'>
                     <FlatList
-                        data={this.state.leaders}
+                        data={this.props.leaders.leaders}
                         renderItem={renderLeader}
                         keyExtractor={item => item.id.toString()}
                     />
@@ -39,4 +39,4 @@ class About extends Component {
     }
 }
 
-export default About;    
+export default connect(mapStateToProps)(About);    

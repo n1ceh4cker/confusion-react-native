@@ -1,9 +1,14 @@
 import React, { Component } from 'react'
 import { View, Text } from 'react-native'
 import { Card, Icon } from 'react-native-elements'
-import { DISHES } from '../shared/dishes'
-import { COMMENTS } from '../shared/comments'
 import { FlatList, ScrollView } from 'react-native-gesture-handler'
+import { connect } from 'react-redux'
+import { baseUrl } from '../shared/baseUrl'
+
+const mapStateToProps = (state) => ({
+    dishes: state.dishes,
+    comments: state.comments,
+})
 
 function RenderComments({comments }){
     const renderCommentItem = ({ item, index }) => {
@@ -31,8 +36,7 @@ function RenderDish({ dish, favourite , onPress}) {
         (
             <Card 
                 featuredTitle={dish.name}
-                image={require('./images/uthappizza.png')}
-            >
+                image={{ uri: baseUrl + dish.image }}>
                 <Text style={{ padding: 10 }}>{dish.description}</Text>
                 <Icon
                     raised
@@ -49,8 +53,6 @@ function RenderDish({ dish, favourite , onPress}) {
 }
 class DishDetail extends Component {
     state = {
-        dishes: DISHES,
-        comments: COMMENTS,
         favourites: []
     }
     static navigationOptions = {
@@ -65,14 +67,14 @@ class DishDetail extends Component {
         const dishId = this.props.navigation.getParam('dishId', '')
         return (
             <ScrollView>
-                <RenderDish dish={this.state.dishes[+dishId]} 
+                <RenderDish dish={this.props.dishes.dishes[+dishId]} 
                     favourite={this.state.favourites.some(e => e === dishId)}
                     onPress={() => this.markFavourite(dishId)}
                 />
-                <RenderComments comments={this.state.comments.filter(comment => comment.id===dishId)} />
+                <RenderComments comments={this.props.comments.comments.filter(comment => comment.dishId===dishId)} />
             </ScrollView>
         )
     }
 }
 
-export default DishDetail
+export default connect(mapStateToProps)(DishDetail)

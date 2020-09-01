@@ -7,10 +7,22 @@ import Contact from './ContactComponent'
 import { createAppContainer } from 'react-navigation'
 import { createStackNavigator } from 'react-navigation-stack'
 import { createDrawerNavigator, DrawerItems } from 'react-navigation-drawer'
-import { StyleSheet, SafeAreaView, View, Image, Text } from 'react-native'
+import { StyleSheet, SafeAreaView, View, Image, Text, LogBox } from 'react-native'
 import { Icon } from 'react-native-elements'
 import { ScrollView } from 'react-native-gesture-handler'
+import { connect } from 'react-redux'
+import { fetchDishes, fetchPromos, fetchLeaders, fetchComments } from '../redux/ActionCreaters'
 
+const mapStateToProps = (state) => ({
+
+})
+
+const mapDispatchToProps = (dispatch) => ({
+    fetchDishes: () => dispatch(fetchDishes()),
+    fetchPromos: () => dispatch(fetchPromos()),
+    fetchLeaders: () => dispatch(fetchLeaders()),
+    fetchComments: () => dispatch(fetchComments())
+})
 const HomeNavigator = createStackNavigator(
     {
         Home: { screen: Home },
@@ -174,7 +186,13 @@ const MainNavigator = createAppContainer(createDrawerNavigator({
     }
 ))
 
-export default class Main extends Component {
+class Main extends Component {
+    componentDidMount = () => {
+        this.props.fetchDishes()
+        this.props.fetchPromos()
+        this.props.fetchLeaders()
+        this.props.fetchComments()
+    }
     render() {
         return (
             <MainNavigator />  
@@ -205,3 +223,5 @@ const styles = StyleSheet.create({
         height: 60
     }
 })
+
+export default connect(mapStateToProps, mapDispatchToProps)(Main)
