@@ -137,3 +137,14 @@ export const fetchLeaders = () => (dispatch) => {
     .then(leaders => dispatch(addLeaders(leaders)))
     .catch(error => dispatch(leadersFailed(error.message)))
 }
+
+export const addFavorites = (dishId) => ({
+    type: ActionTypes.ADD_FAVORITE,
+    payload: dishId
+})
+
+export const postFavorites = (dishId) => (dispatch) => {
+    setTimeout(() => {
+        dispatch(addFavorites(dishId))
+    }, 2000);
+}
