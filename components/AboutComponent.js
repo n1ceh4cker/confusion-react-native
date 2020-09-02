@@ -4,23 +4,35 @@ import { Card, ListItem } from 'react-native-elements';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import { connect } from 'react-redux'
 import { baseUrl } from '../shared/baseUrl';
+import Loading from './LoadingComponent';
 
 const mapStateToProps = (state) => ({
     leaders: state.leaders
 })
-  
+const RenderLeaders = ({ leaders, isLoading, errMsg }) => {
+    const renderLeaderItem = ({ item }) => {
+        return (
+            <ListItem
+                title={item.name}
+                subtitle={item.description}
+                hideChevron={true}
+                leftAvatar={{source: { uri: baseUrl + item.image }}}
+            />
+        )
+    }
+    if(isLoading) return <Loading />
+    else if(errMsg) return <Text>{errMsg}</Text>
+    else return(
+        <FlatList
+            data={leaders}
+            renderItem={renderLeaderItem}
+            keyExtractor={item => item.id.toString()}
+        />
+    )
+}
 class About extends Component {
     render(){
-        const renderLeader = ({ item }) => {
-            return (
-                <ListItem
-                    title={item.name}
-                    subtitle={item.description}
-                    hideChevron={true}
-                    leftAvatar={{source: { uri: baseUrl + item.image }}}
-                />
-            )
-        }
+        const { leaders, isLoading, errMsg } = this.props.leaders
         return(
             <ScrollView>
                 <Card title='Our History'>
@@ -28,11 +40,7 @@ class About extends Component {
                     <Text>The restaurant traces its humble beginnings to The Frying Pan, a successful chain started by our CEO, Mr. Peter Pan, that featured for the first time the world's best cuisines in a pan.</Text>
                 </Card>
                 <Card title='Corporate Leadership'>
-                    <FlatList
-                        data={this.props.leaders.leaders}
-                        renderItem={renderLeader}
-                        keyExtractor={item => item.id.toString()}
-                    />
+                    <RenderLeaders leaders={leaders} isLoading={isLoading} errMsg={errMsg} />
                 </Card>
             </ScrollView>
         )

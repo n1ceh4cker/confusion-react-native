@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
-import { ListItem, Tile } from 'react-native-elements'
+import { Tile } from 'react-native-elements'
 import { FlatList } from 'react-native-gesture-handler'
 import { connect } from 'react-redux'
 import { baseUrl } from '../shared/baseUrl'
+import { View, Text } from 'react-native'
+import Loading from './LoadingComponent'
 
 const mapStateToProps = (state) => ({
     dishes: state.dishes,
@@ -14,6 +16,7 @@ class Menu extends Component {
     }
     render(){
         const { navigate } = this.props.navigation
+        const { dishes, isLoading, errMsg } = this.props.dishes
         const renderMenuItem = ({ item , index}) => {
             return(
                 <Tile
@@ -26,10 +29,13 @@ class Menu extends Component {
                     />
             )
         }
+        if(isLoading) return <Loading />
+        else if(errMsg) return <View><Text>{errMsg}</Text></View>
+        else
         return (
 
                 <FlatList 
-                data={this.props.dishes.dishes}
+                data={dishes}
                 renderItem={renderMenuItem}
                 keyExtractor={(item) => item.id.toString()}
                 />        
