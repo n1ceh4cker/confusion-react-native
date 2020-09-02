@@ -12,6 +12,7 @@ import { Icon } from 'react-native-elements'
 import { ScrollView } from 'react-native-gesture-handler'
 import { connect } from 'react-redux'
 import { fetchDishes, fetchPromos, fetchLeaders, fetchComments } from '../redux/ActionCreaters'
+import Reservation from './ReservationComponent'
 
 const mapStateToProps = (state) => ({
 
@@ -104,6 +105,25 @@ const ContactNavigator = createStackNavigator(
                     />
     })
 })
+const ReservationNavigator = createStackNavigator(
+    {
+        Reservation: { screen: Reservation },
+    },
+    {
+    defaultNavigationOptions: ({ navigation }) => ({
+        headerStyle: {
+            backgroundColor: '#512da8'
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+            color: '#fff'
+        },
+        headerLeft: <Icon name='menu' size={24}
+                    color='white'
+                    onPress={() => navigation.toggleDrawer()}
+                    />
+    })
+})
 const CustomDrawerContent = (props) => (
     <ScrollView>
         <SafeAreaView style={styles.container} forceInset={{ top: 'always', horizontal: 'never'}}>
@@ -173,6 +193,21 @@ const MainNavigator = createAppContainer(createDrawerNavigator({
             drawerIcon: ({ tintColor }) => (
                 <Icon 
                     name='address-card'
+                    type='font-awesome'
+                    size={22}
+                    color={tintColor}
+                />
+            )
+        }
+    },
+    Reservation: {
+        screen: ReservationNavigator,
+        navigationOptions: {
+            title: 'Reserve Table',
+            drawerLabel: 'Reserve Table',
+            drawerIcon: ({ tintColor }) => (
+                <Icon 
+                    name='cutlery'
                     type='font-awesome'
                     size={22}
                     color={tintColor}
