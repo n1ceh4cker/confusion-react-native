@@ -148,3 +148,37 @@ export const postFavorites = (dishId) => (dispatch) => {
         dispatch(addFavorites(dishId))
     }, 2000);
 }
+
+export const addComment = (comment) => ({
+    type: ActionTypes.ADD_COMMENT,
+    payload: comment 
+})
+
+export const postComment = (dishId, rating, author, comment) => (dispatch) => {
+    const newComment = { dishId, rating, author, comment }
+    newComment.date = new Date().toISOString()
+    return fetch(baseUrl + 'comments', {
+        method: "POST",
+        body: JSON.stringify(newComment),
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "same-origin"
+    })
+    .then(response => {
+        if(response.ok){
+            return response
+        } else{
+            let error = new Error('Error ' + response.status + ': ' + response.statusText)
+            error.response = response
+            throw error
+         }
+        },
+        error =>{
+            throw error
+    })
+    .then(response => response.json())
+    .then(response => dispatch(addComment(response)))
+    .catch(error => {console.log('Comment cannot be posted: ' + error.message)})
+    
+}

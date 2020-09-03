@@ -209,6 +209,30 @@
       "comment": "very good taste",
       "date": "2020-08-28T14:15:20.550Z",
       "id": 20
+    },
+    {
+      "dishId": 0,
+      "rating": 5,
+      "author": "Nice Akhtar",
+      "comment": "Yumm",
+      "date": "2020-09-03T07:41:15.550Z",
+      "id": 21
+    },
+    {
+      "dishId": 1,
+      "rating": 5,
+      "author": "Nice Akhtar",
+      "comment": "Meh",
+      "date": "2020-09-03T08:39:33.475Z",
+      "id": 22
+    },
+    {
+      "dishId": 1,
+      "rating": "",
+      "author": "Nice Akhtar",
+      "comment": "Yay",
+      "date": "2020-09-03T08:43:06.507Z",
+      "id": 23
     }
   ],
   "promotions": [
