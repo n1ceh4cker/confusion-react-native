@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { ScrollView, Switch } from 'react-native-gesture-handler'
-import { StyleSheet, View, Text, Picker, Button } from 'react-native'
+import { StyleSheet, View, Text, Picker, Button, Modal } from 'react-native'
 import DatePicker from 'react-native-datepicker'
 
 export default class Reservation extends Component {
@@ -10,14 +10,24 @@ export default class Reservation extends Component {
     state = {
         guests: 1,
         smoking: false,
-        date: ''
+        date: '',
+        showModal: false
+    }
+    toggleModal = () => {
+        this.setState({
+            showModal: !this.state.showModal
+        })
     }
     handleSubmit = () => {
         console.log(JSON.stringify(this.state))
+        this.toggleModal()
+    }
+    resetForm = () => {
         this.setState({
             guests: 1,
             smoking: false,
-            date: ''
+            date: '',
+            showModal: false
         })
     }
     render() {
@@ -40,19 +50,19 @@ export default class Reservation extends Component {
                 <View style={styles.formRow}>
                     <Text style={styles.formLabel}>Smoking/Non-Smoking?</Text>
                     <Switch
-                        style={styles.formLabel}
+                        style={styles.formItem}
                         value={this.state.smoking}
                         onTintColor='#512da8'
                         onValueChange={(value) => this.setState({smoking: value})}>
                     </Switch>
                 </View>
                 <View style={styles.formRow}>
-                    <Text style={styles.formLabel}>Date and Time</Text>
+                    <Text style={styles.formLabel}>Date</Text>
                     <DatePicker 
                         style={{ flex: 2, marginRight: 20}}
                         date={this.state.date}
-                        mode='datetime'
-                        placeholder='Select Date and Time'
+                        mode='date'
+                        placeholder='Select Date'
                         minDate='2020-01-01'
                         confirmBtnText='Confirm'
                         cancelBtnText='Cancel'
@@ -78,6 +88,22 @@ export default class Reservation extends Component {
                         accessibilityLabel='Learn more'
                     />
                 </View>
+                <Modal animationType={'slide'} transparent={false} 
+                    visible={this.state.showModal}
+                    onDismiss={() => this.toggleModal()}
+                    onRequestClose={() => this.toggleModal()} >
+                    <View style={styles.modal}>
+                        <Text style={styles.modalTitle}>Your Reservation</Text>
+                        <Text style={styles.modalText}>Number of Guests: {this.state.guests}</Text>
+                        <Text style={styles.modalText}>Smoking? {this.state.smoking? 'Yes' : 'No'}</Text>
+                        <Text style={styles.modalText}>Date: {this.state.date}</Text>
+                        <Button
+                            onPress={() => this.resetForm()}
+                            title='Close'
+                            color='#512da8'
+                        />
+                    </View>
+                </Modal>
             </ScrollView>
         )
     }
@@ -97,5 +123,21 @@ const styles = StyleSheet.create({
     },
     formItem: {
         flex: 1
+    },
+    modal: {
+        justifyContent: 'center',
+        margin: 20
+    },
+    modalTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        backgroundColor: '#512da8',
+        textAlign: 'center',
+        color: 'white',
+        marginBottom: 20
+    },
+    modalText: {
+        fontSize: 18,
+        margin: 10
     }
 })
