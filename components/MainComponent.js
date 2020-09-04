@@ -13,6 +13,7 @@ import { ScrollView } from 'react-native-gesture-handler'
 import { connect } from 'react-redux'
 import { fetchDishes, fetchPromos, fetchLeaders, fetchComments } from '../redux/ActionCreaters'
 import Reservation from './ReservationComponent'
+import Favorites from './FavoriteComponent'
 
 const mapStateToProps = (state) => ({
 
@@ -89,6 +90,25 @@ const AboutNavigator = createStackNavigator(
 const ContactNavigator = createStackNavigator(
     {
         Contact: { screen: Contact },
+    },
+    {
+    defaultNavigationOptions: ({ navigation }) => ({
+        headerStyle: {
+            backgroundColor: '#512da8'
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+            color: '#fff'
+        },
+        headerLeft: <Icon name='menu' size={24}
+                    color='white'
+                    onPress={() => navigation.toggleDrawer()}
+                    />
+    })
+})
+const FavoriteNavigator = createStackNavigator(
+    {
+        Favorites: { screen: Favorites },
     },
     {
     defaultNavigationOptions: ({ navigation }) => ({
@@ -195,6 +215,21 @@ const MainNavigator = createAppContainer(createDrawerNavigator({
                     name='address-card'
                     type='font-awesome'
                     size={22}
+                    color={tintColor}
+                />
+            )
+        }
+    },
+    Favorites: {
+        screen: FavoriteNavigator,
+        navigationOptions: {
+            title: 'My Favorites',
+            drawerLabel: 'My Favorites',
+            drawerIcon: ({ tintColor }) => (
+                <Icon 
+                    name='heart'
+                    type='font-awesome'
+                    size={24}
                     color={tintColor}
                 />
             )
