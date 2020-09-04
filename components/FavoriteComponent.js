@@ -5,11 +5,18 @@ import { ListItem } from 'react-native-elements'
 import Loading from './LoadingComponent'
 import { View } from 'react-native'
 import { baseUrl } from '../shared/baseUrl'
+import { deleteFavorite } from '../redux/ActionCreaters'
+import Swipeout from 'react-native-swipeout'
 
 const mapStateToProps = (state) => ({
     dishes: state.dishes,
     favorites: state.favorites
 })
+
+const mapDispatchToProps = (dispatch) => ({
+    deleteFavorite: (dishId) => dispatch(deleteFavorite(dishId))
+})
+
 class Favorites extends Component {
     static navigationOptions = {
         title: 'My Favorites'
@@ -17,16 +24,25 @@ class Favorites extends Component {
     render() {
         const { dishes, favorites } = this.props
         const { navigate } = this.props.navigation
-        const renderMenuItem = ({ item, index }) => (
-            <ListItem 
-                key={index}
-                title={item.name}
-                subtitle={item.description}
-                hideChevron={true}
-                leftAvatar={{source: {uri: baseUrl + item.image }}}
-                onPress={() => navigate('DishDetail', { dishId: item.id })}
-                />
-        )
+        const renderMenuItem = ({ item, index }) => {
+            const rightSwipe = [{
+                text: 'Delete',
+                type: 'delete',
+                onPress: () => this.props.deleteFavorite(item.id)
+            }]
+            return(
+            <Swipeout right={rightSwipe} autoClose={true}>
+                <ListItem 
+                    key={index}
+                    title={item.name}
+                    subtitle={item.description}
+                    hideChevron={true}
+                    leftAvatar={{source: {uri: baseUrl + item.image }}}
+                    onPress={() => navigate('DishDetail', { dishId: item.id })}
+                    />
+            </Swipeout>
+            )
+        }
         if(dishes.isLoading) return <Loading />
         else if(dishes.errMsg) return <View><Text>{dishes.errMsg}</Text></View>
         else return (
@@ -39,4 +55,4 @@ class Favorites extends Component {
     }
 }
 
-export default connect(mapStateToProps)(Favorites)
+export default connect(mapStateToProps, mapDispatchToProps)(Favorites)
