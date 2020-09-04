@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { FlatList } from 'react-native-gesture-handler'
 import { ListItem } from 'react-native-elements'
 import Loading from './LoadingComponent'
-import { View } from 'react-native'
+import { View, Alert } from 'react-native'
 import { baseUrl } from '../shared/baseUrl'
 import { deleteFavorite } from '../redux/ActionCreaters'
 import Swipeout from 'react-native-swipeout'
@@ -28,7 +28,24 @@ class Favorites extends Component {
             const rightSwipe = [{
                 text: 'Delete',
                 type: 'delete',
-                onPress: () => this.props.deleteFavorite(item.id)
+                onPress: () => {
+                    Alert.alert(
+                        'Delete Favorite?',
+                        'Are you sure you want to delete ' + item.name + ' from favorites?',
+                        [
+                            {
+                                text: 'Cancel',
+                                style: 'cancel',
+                                onPress: () => console.log(item.name + ' not deleted from favorite!')
+                            },
+                            {
+                                text: 'OK',
+                                onPress: () => this.props.deleteFavorite(item.id)
+                            }
+                        ],
+                        { cancelable: false }
+                    )
+                }
             }]
             return(
             <Swipeout right={rightSwipe} autoClose={true}>
