@@ -41,17 +41,22 @@ function RenderComments({comments }){
 }
 
 function RenderDish({ dish, favorite , onPress, toggleModal}) {
-    handleViewRef = ref => this.view = ref
-    const recognizeDrag = ({ moveX, moveY, dx, dy }) => {
+    let view = ''
+    const handleViewRef = ref => view = ref
+    const recognizeDragRight = ({ moveX, moveY, dx, dy }) => {
         if(dx < -200) return true
+        else return false
+    }
+    const recognizeDragLeft = ({ moveX, moveY, dx, dy }) => {
+        if(dx > 200) return true
         else return false
     }
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: (e, gestureState) => true,
-        onPanResponderGrant: () => this.view.rubberBand(1000).then(endState => console.log(endState.finished ? 'finished' : 'cancelled')),
+        onPanResponderGrant: () => view.rubberBand(1000).then(endState => console.log(endState.finished ? 'finished' : 'cancelled')),
         onPanResponderEnd: (e, gestureState) => {
             console.log('pan responder end' + gestureState)
-            if(recognizeDrag(gestureState)){
+            if(recognizeDragRight(gestureState)){
                 Alert.alert(
                     'Add favorite',
                     'Are you sure you want to add ' + dish.name + ' to favorite?',
@@ -61,6 +66,8 @@ function RenderDish({ dish, favorite , onPress, toggleModal}) {
                     ],
                     { cancelable: false }
                 )
+            }else if(recognizeDragLeft(gestureState)){
+                toggleModal()
             }
             return true
         }
@@ -68,7 +75,7 @@ function RenderDish({ dish, favorite , onPress, toggleModal}) {
     return dish!=null? 
         (
             <Animatable.View animation='fadeInDown' duration={2000} delay={1000} 
-                ref={this.handleViewRef}
+                ref={handleViewRef}
                 {...panResponder.panHandlers} >
                 <Card 
                     featuredTitle={dish.name}
