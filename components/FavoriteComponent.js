@@ -7,6 +7,7 @@ import { View, Alert } from 'react-native'
 import { baseUrl } from '../shared/baseUrl'
 import { deleteFavorite } from '../redux/ActionCreaters'
 import Swipeout from 'react-native-swipeout'
+import * as Animatable from 'react-native-animatable';
 
 const mapStateToProps = (state) => ({
     dishes: state.dishes,
@@ -49,14 +50,16 @@ class Favorites extends Component {
             }]
             return(
             <Swipeout right={rightSwipe} autoClose={true}>
-                <ListItem 
-                    key={index}
-                    title={item.name}
-                    subtitle={item.description}
-                    hideChevron={true}
-                    leftAvatar={{source: {uri: baseUrl + item.image }}}
-                    onPress={() => navigate('DishDetail', { dishId: item.id })}
-                    />
+                <Animatable.View animation='fadeInRightBig' duration={2000}>
+                    <ListItem 
+                        key={index}
+                        title={item.name}
+                        subtitle={item.description}
+                        hideChevron={true}
+                        leftAvatar={{source: {uri: baseUrl + item.image }}}
+                        onPress={() => navigate('DishDetail', { dishId: item.id })}
+                        />
+                </Animatable.View>
             </Swipeout>
             )
         }
