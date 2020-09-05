@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import { fetchDishes, fetchPromos, fetchLeaders, fetchComments } from '../redux/ActionCreaters'
 import Reservation from './ReservationComponent'
 import Favorites from './FavoriteComponent'
+import Login from './LoginComponent'
 
 const mapStateToProps = (state) => ({
 
@@ -28,6 +29,27 @@ const mapDispatchToProps = (dispatch) => ({
 const HomeNavigator = createStackNavigator(
     {
         Home: { screen: Home },
+    },
+    {
+    defaultNavigationOptions: ({ navigation }) => ({
+        headerStyle: {
+            backgroundColor: '#512da8'
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+            color: '#fff'
+        },
+        headerLeft: <Icon name='menu' size={24}
+                    color='white'
+                    containerStyle={{paddingLeft: 10}}
+                    onPress={() => navigation.toggleDrawer()}
+                    />
+    })
+})
+
+const LoginNavigator = createStackNavigator(
+    {
+        Login: { screen: Login },
     },
     {
     defaultNavigationOptions: ({ navigation }) => ({
@@ -166,6 +188,21 @@ const CustomDrawerContent = (props) => (
     </ScrollView>
 ) 
 const MainNavigator = createAppContainer(createDrawerNavigator({
+    Login: {
+        screen: LoginNavigator,
+        navigationOptions: {
+            title: 'Login',
+            drawerLabel: 'Login',
+            drawerIcon: ({ tintColor }) => (
+                <Icon 
+                    name='sign-in'
+                    type='font-awesome'
+                    size={24}
+                    color={tintColor}
+                />
+            )
+        }
+    },
     Home: {
         screen: HomeNavigator,
         navigationOptions: {
@@ -258,6 +295,7 @@ const MainNavigator = createAppContainer(createDrawerNavigator({
     }},
     {
         drawerBackgroundColor: '#d1c4e9',
+        initialRouteName: 'Home',
         contentComponent: CustomDrawerContent
     }
 ))
