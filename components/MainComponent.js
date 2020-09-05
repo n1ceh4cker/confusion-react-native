@@ -40,6 +40,7 @@ const HomeNavigator = createStackNavigator(
         },
         headerLeft: <Icon name='menu' size={24}
                     color='white'
+                    containerStyle={{paddingLeft: 10}}
                     onPress={() => navigation.toggleDrawer()}
                     />
     })
@@ -51,6 +52,7 @@ const MenuNavigator = createStackNavigator(
             navigationOptions: ({ navigation }) => ({
                 headerLeft: <Icon name='menu' size={24}
                     color='white'
+                    containerStyle={{paddingLeft: 10}}
                     onPress={() => navigation.toggleDrawer()}
                     />
             })
@@ -83,6 +85,7 @@ const AboutNavigator = createStackNavigator(
         },
         headerLeft: <Icon name='menu' size={24}
                     color='white'
+                    containerStyle={{paddingLeft: 10}}
                     onPress={() => navigation.toggleDrawer()}
                     />
     })
@@ -102,6 +105,7 @@ const ContactNavigator = createStackNavigator(
         },
         headerLeft: <Icon name='menu' size={24}
                     color='white'
+                    containerStyle={{paddingLeft: 10}}
                     onPress={() => navigation.toggleDrawer()}
                     />
     })
@@ -121,6 +125,7 @@ const FavoriteNavigator = createStackNavigator(
         },
         headerLeft: <Icon name='menu' size={24}
                     color='white'
+                    containerStyle={{paddingLeft: 10}}
                     onPress={() => navigation.toggleDrawer()}
                     />
     })
@@ -140,6 +145,7 @@ const ReservationNavigator = createStackNavigator(
         },
         headerLeft: <Icon name='menu' size={24}
                     color='white'
+                    containerStyle={{paddingLeft: 10}}
                     onPress={() => navigation.toggleDrawer()}
                     />
     })
