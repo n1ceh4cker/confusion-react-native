@@ -3,6 +3,8 @@ import { ScrollView, Switch } from 'react-native-gesture-handler'
 import { StyleSheet, View, Text, Picker, Button, Modal, Alert } from 'react-native'
 import DatePicker from 'react-native-datepicker'
 import * as Animatable from 'react-native-animatable';
+import { Permissions } from 'react-native-unimodules';
+import { Notifications } from 'expo';
 
 export default class Reservation extends Component {
     static navigationOptions = {
@@ -30,6 +32,31 @@ export default class Reservation extends Component {
             smoking: false,
             date: '',
             showModal: false
+        })
+    }
+    async obtainNotificationPermission(){
+        let permission = await Permissions.getAsync(Permissions.USER_FACING_NOTIFICATIONS)
+        if(permission.status!=='granted'){
+            permission = await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS)
+            if(permission.status!=='granted'){
+                Alert.alert('Permission not granted to show status')
+            }
+        }
+        return permission
+    }
+    async presentLocalNotification(date){
+        await this.obtainNotificationPermission()
+        Notifications.presentLocalNotificationAsync({
+            title: 'Your Reservation',
+            body: 'Reservation for ' + date + ' requested',
+            ios: {
+                sound: true
+            },
+            android: {
+                sound: true,
+                vibrate: true,
+                color: '#512da8'
+            }
         })
     }
     render() {
@@ -85,7 +112,7 @@ export default class Reservation extends Component {
                 </View>
                 <View style={styles.formRow}>
                     <Button
-                        onPress={() => this.handleSubmit()}
+                        onPress={() => {this.handleSubmit(); this.presentLocalNotification(this.state.date)}}
                         title='Reserve'
                         color='#512da8'
                         accessibilityLabel='Learn more'
