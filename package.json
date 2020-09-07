@@ -38,7 +38,8 @@
     "redux-logger": "^3.0.6",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.3.0",
-    "expo-image-picker": "~8.3.0"
+    "expo-image-picker": "~8.3.0",
+    "@react-native-community/netinfo": "5.9.2"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",

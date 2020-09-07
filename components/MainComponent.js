@@ -7,7 +7,7 @@ import Contact from './ContactComponent'
 import { createAppContainer } from 'react-navigation'
 import { createStackNavigator } from 'react-navigation-stack'
 import { createDrawerNavigator, DrawerItems } from 'react-navigation-drawer'
-import { StyleSheet, SafeAreaView, View, Image, Text, LogBox } from 'react-native'
+import { StyleSheet, SafeAreaView, View, Image, Text, ToastAndroid } from 'react-native'
 import { Icon } from 'react-native-elements'
 import { ScrollView } from 'react-native-gesture-handler'
 import { connect } from 'react-redux'
@@ -15,6 +15,7 @@ import { fetchDishes, fetchPromos, fetchLeaders, fetchComments } from '../redux/
 import Reservation from './ReservationComponent'
 import Favorites from './FavoriteComponent'
 import Login from './LoginComponent'
+import NetInfo from '@react-native-community/netinfo'
 
 const mapStateToProps = (state) => ({
 
@@ -301,11 +302,34 @@ const MainNavigator = createAppContainer(createDrawerNavigator({
 ))
 
 class Main extends Component {
-    componentDidMount = () => {
+    componentDidMount() {
         this.props.fetchDishes()
         this.props.fetchPromos()
         this.props.fetchLeaders()
         this.props.fetchComments()
+        NetInfo.fetch()
+            .then(connectionInfo => {
+                ToastAndroid.show('Initial Network Connection: ' + connectionInfo.type, ToastAndroid.LONG)
+                NetInfo.addEventListener(this.handleConnectivityChange)
+            })
+    }
+    handleConnectivityChange = (connectionInfo) => {
+        switch (connectionInfo.type) {
+            case 'none':
+                ToastAndroid.show('You are now offline', ToastAndroid.LONG)
+                break
+            case 'wifi':
+                ToastAndroid.show('You are now connected to wifi', ToastAndroid.LONG)
+                break
+            case 'cellular':
+                ToastAndroid.show('You are now connected to cellular', ToastAndroid.LONG)
+                break
+            case 'unknown':
+                ToastAndroid.show('You have now unknown connection', ToastAndroid.LONG)
+                break
+            default:
+                break
+        }
     }
     render() {
         return (
