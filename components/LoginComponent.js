@@ -132,8 +132,21 @@ class RegisterTab extends Component {
     }
     getImageFromCamera = async () => {
         const cameraPermission = await Permissions.askAsync(Permissions.CAMERA)
-        if(cameraPermission.status === 'granted'){
+        const cameraRollPermission = await Permissions.askAsync(Permissions.CAMERA_ROLL)
+        if(cameraPermission.status === 'granted' && cameraRollPermission.status === 'granted'){
             let captureImage = await ImagePicker.launchCameraAsync({
+                allowsEditing: true,
+                aspect: [4,3]
+            })
+            if(!captureImage.cancelled){
+                this.setState({ imageUrl: captureImage.uri })
+            }
+        }
+    }
+    getImageFromGallery = async () => {
+        const cameraRollPermission = await Permissions.askAsync(Permissions.CAMERA_ROLL)
+        if(cameraRollPermission.status === 'granted'){
+            let captureImage = await ImagePicker.launchImageLibraryAsync({
                 allowsEditing: true,
                 aspect: [4,3]
             })
@@ -157,11 +170,15 @@ class RegisterTab extends Component {
                     <Image
                         source={{ uri: this.state.imageUrl }}
                         style={styles.image}
-                        containerStyle={{ paddingLeft: 10 }}
                     />
                     <Button 
                         title='Camera' 
                         onPress={this.getImageFromCamera}
+                        containerStyle={{ paddingTop: 10 }}
+                    />
+                    <Button 
+                        title='Gallery' 
+                        onPress={this.getImageFromGallery}
                         containerStyle={{ paddingTop: 10 }}
                     />        
                 </View>
@@ -255,7 +272,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         margin: 20,
-        justifyContent: 'center'
+        justifyContent: 'space-around'
     },
     image: {
         width: 80,
