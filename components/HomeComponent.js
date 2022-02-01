@@ -3,7 +3,7 @@ import { View, Text } from 'react-native'
 import { Card } from 'react-native-elements'
 import { ScrollView } from 'react-native-gesture-handler'
 import { connect } from 'react-redux'
-import { baseUrl } from '../shared/baseUrl'
+import { globalStyles } from '../shared/globalStylesheet'
 import Loading from './LoadingComponent'
 
 const mapStateToProps = (state) => ({
@@ -13,15 +13,18 @@ const mapStateToProps = (state) => ({
 })
 
 const RenderCard = ({ item, isLoading, errMsg }) => {
-    if(isLoading) return <Loading />
-    else if(errMsg) return <View><Text>{errMsg}</Text></View>
-    else if(item!=null) 
-    return(        
+  if (isLoading) return <Loading />
+  else if (errMsg) return <View><Text>{errMsg}</Text></View>
+  else if (item != null)
+    return (
         <Card
             featuredTitle={item.name}
             featuredSubtitle={item.designation}
-            image={{ uri: baseUrl+ item.image  }}>
-                <Text style={{ margin:10 }}>{item.description}</Text>
+            featuredTitleStyle={{ textAlign: 'center', ...globalStyles.title }}
+            featuredSubtitleStyle={{ textAlign: 'center', ...globalStyles.subtitle }}
+            imageStyle={{ height : 300 }}
+            image={{ uri:  item.image  }}>
+            <Text style={{ ...globalStyles.text, margin: 5 }}>{item.description}</Text>
         </Card>
     )
     else return <View></View>

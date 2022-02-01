@@ -1,5 +1,6 @@
 import * as ActionTypes from './ActionTypes'
 import { baseUrl } from '../shared/baseUrl';
+import * as SecureStore from 'expo-secure-store';
 
 export const addComments = (comments) => ({
     type: ActionTypes.ADD_COMMENTS,
@@ -138,37 +139,26 @@ export const fetchLeaders = () => (dispatch) => {
     .catch(error => dispatch(leadersFailed(error.message)))
 }
 
-export const addFavorites = (dishId) => ({
-    type: ActionTypes.ADD_FAVORITE,
-    payload: dishId
-})
-
-export const postFavorites = (dishId) => (dispatch) => {
-    setTimeout(() => {
-        dispatch(addFavorites(dishId))
-    }, 2000);
-}
-
-export const deleteFavorite = (dishId) => ({
-    type: ActionTypes.DELETE_FAVORITE,
-    payload: dishId
-})
 
 export const addComment = (comment) => ({
     type: ActionTypes.ADD_COMMENT,
     payload: comment 
 })
 
-export const postComment = (dishId, rating, author, comment) => (dispatch) => {
-    const newComment = { dishId, rating, author, comment }
-    newComment.date = new Date().toISOString()
-    return fetch(baseUrl + 'comments', {
-        method: "POST",
-        body: JSON.stringify(newComment),
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "same-origin"
+export const postComment = (dish, rating, comment) => (dispatch) => {
+    const newComment = { dish, rating, comment }
+    SecureStore.getItemAsync('token')
+    .then(token => {
+        const bearer = 'Bearer ' + token;
+        return fetch(baseUrl + 'comments', {
+            method: "POST",
+            body: JSON.stringify(newComment),
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": bearer
+            },
+            credentials: "same-origin"
+        })
     })
     .then(response => {
         if(response.ok){
@@ -187,3 +177,201 @@ export const postComment = (dishId, rating, author, comment) => (dispatch) => {
     .catch(error => {console.log('Comment cannot be posted: ' + error.message)})
     
 }
+
+export const requestLogin = (creds) => {
+    return {
+        type: ActionTypes.LOGIN_REQUEST,
+        creds
+    }
+}
+  
+export const receiveLogin = (response) => {
+    return {
+        type: ActionTypes.LOGIN_SUCCESS,
+        token: response.token
+    }
+}
+  
+export const loginError = (message) => {
+    return {
+        type: ActionTypes.LOGIN_FAILURE,
+        message
+    }
+}
+
+export const loginUser = (creds) => (dispatch) => {
+    // We dispatch requestLogin to kickoff the call to the API
+    dispatch(requestLogin(creds))
+
+    return fetch(baseUrl + 'users/login', {
+        method: 'POST',
+        headers: { 
+            'Content-Type':'application/json' 
+        },
+        body: JSON.stringify(creds)
+    })
+    .then(response => {
+        if (response.ok) {
+            return response;
+        } else {
+            var error = new Error('Error ' + response.status + ': ' + response.statusText);
+            error.response = response;
+            throw error;
+        }
+        },
+        error => {
+            throw error;
+        })
+    .then(response => response.json())
+    .then(response => {
+        if (response.success) {
+            // If login was successful, set the token in secure storage
+            promise1 = SecureStore.setItemAsync('token', response.token);
+            promise2 = SecureStore.setItemAsync('creds', JSON.stringify(creds));
+            Promise.all([promise1, promise2])
+            .then(resp => {
+                // Dispatch the success action
+                dispatch(fetchFavorites());
+                dispatch(receiveLogin(response));
+            })
+        }
+        else {
+            var error = new Error('Error ' + response.status);
+            error.response = response;
+            throw error;
+        }
+    })
+    .catch(error => dispatch(loginError(error.message)))
+};
+
+export const requestLogout = () => {
+    return {
+      type: ActionTypes.LOGOUT_REQUEST
+    }
+}
+  
+export const receiveLogout = () => {
+    return {
+      type: ActionTypes.LOGOUT_SUCCESS
+    }
+}
+
+// Logs the user out
+export const logoutUser = () => (dispatch) => {
+    dispatch(requestLogout())
+    promise1 = SecureStore.deleteItemAsync('token');
+    promise2 = SecureStore.deleteItemAsync('creds');
+    promise3 = SecureStore.deleteItemAsync('root')
+    Promise.all([promise1, promise2,promise3])
+    .then(resp => {
+        dispatch(favoritesFailed("Error 401: Unauthorized"));
+        dispatch(receiveLogout())
+    })
+}
+
+export const postFavorite = (dishId) => (dispatch) => {
+
+    SecureStore.getItemAsync('token')
+    .then(token => {
+        const bearer = 'Bearer ' + token;
+        return fetch(baseUrl + 'favorites/' + dishId, {
+        method: "POST",
+        body: JSON.stringify({"_id": dishId}),
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': bearer
+        },
+        credentials: "same-origin"
+        })
+    })    
+    .then(response => {
+        if (response.ok) {
+          return response;
+        } else {
+          var error = new Error('Error ' + response.status + ': ' + response.statusText);
+          error.response = response;
+          throw error;
+        }
+      },
+      error => {
+            throw error;
+      })
+    .then(response => response.json())
+    .then(favorites => { console.log('Favorite Added', favorites); dispatch(addFavorites(favorites)); })
+    .catch(error => dispatch(favoritesFailed(error.message)));
+}
+
+export const deleteFavorite = (dishId) => (dispatch) => {
+
+    SecureStore.getItemAsync('token')
+    .then(token => {
+        const bearer = 'Bearer ' + token;
+        return fetch(baseUrl + 'favorites/' + dishId, {
+        method: "DELETE",
+        headers: {
+          'Authorization': bearer
+        },
+        credentials: "same-origin"
+    })
+    })
+    .then(response => {
+        if (response.ok) {
+          return response;
+        } else {
+          var error = new Error('Error ' + response.status + ': ' + response.statusText);
+          error.response = response;
+          throw error;
+        }
+      },
+      error => {
+            throw error;
+      })
+    .then(response => response.json())
+    .then(favorites => { console.log('Favorite Deleted', favorites); dispatch(addFavorites(favorites)); })
+    .catch(error => dispatch(favoritesFailed(error.message)));
+};
+
+export const fetchFavorites = () => (dispatch) => {
+    dispatch(favoritesLoading(true));
+
+  SecureStore.getItemAsync('token')
+    .then(token => {
+      const bearer = 'Bearer ' + token;
+      return fetch(baseUrl + 'favorites', {
+        headers: {
+          'Authorization': bearer
+        },
+      })
+    })
+    .then(response => {
+      if (response.ok) {
+        return response;
+      }
+      else {
+        var error = new Error('Error ' + response.status + ': ' + response.statusText);
+        error.response = response;
+        throw error;
+      }
+    },
+      error => {
+        var errmess = new Error(error.message);
+        throw errmess;
+      })
+    .then(response => response.json())
+    .then(favorites => { console.log(favorites); dispatch(addFavorites(favorites)) })
+    .catch(error => dispatch(favoritesFailed(error.message)));
+}
+
+export const favoritesLoading = () => ({
+    type: ActionTypes.FAVORITES_LOADING
+});
+
+export const favoritesFailed = (errmess) => ({
+    type: ActionTypes.FAVORITES_FAILED,
+    payload: errmess
+});
+
+export const addFavorites = (favorites) => ({
+    type: ActionTypes.ADD_FAVORITES,
+    payload: favorites
+});

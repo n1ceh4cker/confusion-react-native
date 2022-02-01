@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
-import { View, Text, Modal, Button, StyleSheet, PanResponder, Alert, Share } from 'react-native'
-import { Card, Icon, AirbnbRating } from 'react-native-elements'
-import { FlatList, ScrollView, TextInput } from 'react-native-gesture-handler'
+import { View, Text, Modal, StyleSheet, PanResponder, Alert, Share } from 'react-native'
+import { Card, Icon, AirbnbRating, Input, Button } from 'react-native-elements'
+import { FlatList, ScrollView } from 'react-native-gesture-handler'
 import { connect } from 'react-redux'
-import { baseUrl } from '../shared/baseUrl'
-import { postFavorites, postComment } from '../redux/ActionCreaters'
+import { postFavorite, postComment } from '../redux/ActionCreaters'
 import * as Animatable from 'react-native-animatable';
+import { globalStyles } from '../shared/globalStylesheet'
 
 const mapStateToProps = (state) => ({
     dishes: state.dishes,
@@ -14,26 +14,32 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-    postFavorites: (dishId) => dispatch(postFavorites(dishId)),
+    postFavorites: (dishId) => dispatch(postFavorite(dishId)),
     postComment: (dishId, rating, author, comment) => dispatch(postComment(dishId, rating, author, comment))
 })
 function RenderComments({comments }){
     const renderCommentItem = ({ item, index }) => {
         return(
             <View key={index} style={{margin: 10}}>
-                <Text style={{fontSize: 14}}>{item.comment}</Text>
-                <Text style={{fontSize: 12}}>{item.rating} Star</Text>
-                <Text style={{fontSize: 12}}>{'-- ' + item.author + ', ' + item.date}</Text>
+                <Text style={{ ...globalStyles.text, textAlign: 'center' }}>{item.comment}</Text>
+                <AirbnbRating
+                    size={25}
+                    showRating={false}
+                    defaultRating={item.rating}
+                    isDisabled={true}
+                    />
+                <Text style={{ ...globalStyles.text, textAlign: 'center' }}>{ 'Author: ' + item.author.firstname + ' ' + item.author.lastname }</Text>
+                <Text style={{ ...globalStyles.text, textAlign: 'center' }}>{ 'Date: ' + new Date(item.createdAt).toLocaleString() }</Text>
             </View>
         )
     }
     return(
         <Animatable.View animation='fadeInUp' duration={2000} delay={1000} >
-            <Card title='Comments'>
+            <Card title='Comments' titleStyle={globalStyles.subtitle}>
                 <FlatList
                     data={comments}
                     renderItem={renderCommentItem}
-                    keyExtractor={item => item.id.toString()}
+                    keyExtractor={item => item._id.toString()}
                 />
             </Card>
         </Animatable.View>
@@ -88,8 +94,10 @@ function RenderDish({ dish, favorite , onPress, toggleModal}) {
                 {...panResponder.panHandlers} >
                 <Card 
                     featuredTitle={dish.name}
-                    image={{ uri: baseUrl + dish.image }}>
-                    <Text style={{ padding: 10 }}>{dish.description}</Text>
+                    featuredTitleStyle={{ textAlign: 'center', ...globalStyles.title }}
+                    imageStyle={{ height : 275 }}
+                    image={{ uri:  dish.image }}>
+                    <Text style={{ padding: 10, ...globalStyles.text }}>{dish.description}</Text>
                     <View style={styles.iconRow}>
                         <Icon
                             raised
@@ -113,7 +121,7 @@ function RenderDish({ dish, favorite , onPress, toggleModal}) {
                             name={'share'}
                             type='font-awesome'
                             color='#51d2a8'
-                            onPress={() => shareDish(dish.name, dish.description, baseUrl+ dish.image)}
+                            onPress={() => shareDish(dish.name, dish.description, dish.image)}
                         />
                     </View>
                 </Card>
@@ -127,8 +135,7 @@ class DishDetail extends Component {
         title: 'Dish Details'
     }
     state = {
-        rating: '',
-        author: '',
+        rating: 3,
         comment: '',
         showModal: false
     }
@@ -140,11 +147,10 @@ class DishDetail extends Component {
     handleComment = () => {
         console.log(this.state.toString())
         const di = this.props.navigation.getParam('dishId', '')
-        const { rating, author, comment } = this.state
-        this.props.postComment(di,rating, author, comment)
+        const { rating, comment } = this.state
+        this.props.postComment(di,rating, comment)
         this.setState({
-            rating: '',
-            author: '',
+            rating: 3,
             comment: '',
             showModal: false
         })
@@ -153,12 +159,12 @@ class DishDetail extends Component {
         const dishId = this.props.navigation.getParam('dishId', '')
         return (
             <ScrollView>
-                <RenderDish dish={this.props.dishes.dishes[+dishId]} 
-                    favorite={this.props.favorites.some(e => e === dishId)}
+                <RenderDish dish={this.props.dishes.dishes.find(e => e._id === dishId)} 
+                    favorite={this.props.favorites.favorites.some(e => e._id === dishId)}
                     onPress={() => this.props.postFavorites(dishId)}
                     toggleModal={this.toggleModal}
                 />
-                <RenderComments comments={this.props.comments.comments.filter(comment => comment.dishId===dishId)} />
+                <RenderComments comments={this.props.comments.comments.filter(comment => comment.dish===dishId)} />
                 <Modal animationType={'slide'} transparent={false} 
                     visible={this.state.showModal}
                     onDismiss={() => this.toggleModal()}
@@ -167,37 +173,31 @@ class DishDetail extends Component {
                         <Text style={styles.modalTitle}>Add Rating</Text>
                         <AirbnbRating
                             reviews={['Terrible', 'Bad', 'Good', 'Very Good', 'Amazing']}
-                            onFinishRating={(rating) => this.setState({rating: rating})}/>
-                        <View style={styles.formRow}>
-                            <Icon name={'user-o'} type='font-awesome' style={styles.icon}/>
-                            <TextInput 
-                                style={styles.input}
-                                value={this.state.author}
-                                placeholder='Your Name'
-                                onChangeText={(value) => this.setState({author: value})}
-                            />
-                        </View>
-                        <View style={styles.formRow}>
-                            <Icon name={'comment-o'} type='font-awesome' style={styles.icon}/>
-                            <TextInput
-                                style={styles.input}
-                                value={this.state.comment}
-                                placeholder='Comment'
-                                onChangeText={(value) => this.setState({comment: value})} 
-                            />
-                        </View>
+                            onFinishRating={(rating) => this.setState({ rating: rating })}
+                        />
+                        <Input
+                            leftIcon={{ name:'comment-o', type:'font-awesome' }}
+                            style={globalStyles.boldText}
+                            value={this.state.comment}
+                            placeholder='Comment  '
+                            onChangeText={(value) => this.setState({comment: value})} 
+                        />
                         <View style={styles.btn}>
                             <Button
+                                raised
                                 onPress={() => this.handleComment()}
                                 title='Submit'
-                                color='#512da8'
+                                buttonStyle={{ backgroundColor: '#512da8' }}
+                                titleStyle={globalStyles.boldText}
                             />
                         </View>
                         <View style={styles.btn}>
                             <Button
+                                raised
                                 onPress={() => this.toggleModal()}
                                 title='Close'
-                                color='#777777'
+                                buttonStyle={{ backgroundColor: '#777777' }}
+                                titleStyle={globalStyles.boldText}
                             />
                         </View>
                     </View>
@@ -214,7 +214,9 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: 24,
-        fontWeight: 'bold',
+        fontFamily: 'DancingScript',
+        fontWeight: 'normal',
+        padding: 10,
         backgroundColor: '#512da8',
         textAlign: 'center',
         color: 'white',
@@ -235,13 +237,6 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingTop: 10,
         paddingRight: 5
-    },
-    input: {
-        flex: 9,
-        borderBottomColor: '#777777',
-        borderBottomWidth: 2,
-        fontSize: 16,
-        padding: 5
     },
     btn: {
         marginBottom: 10,

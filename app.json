@@ -1,12 +1,21 @@
 {
-  "name": "confusion-react-native",
-  "displayName": "confusion-react-native",
+  "name": "confusion",
+  "displayName": "confusion",
   "expo": {
-    "name": "confusion-react-native",
-    "slug": "confusion-react-native",
+    "name": "confusion",
+    "slug": "confusion",
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
-    ]
+    ],
+    "icon": "./icon.png",
+    "ios": {
+      "bundleIdentifier": "net.food.confusion",
+      "buildNumber": "1.0.0"
+    },
+    "android": {
+      "package": "net.food.confusion",
+      "versionCode": 1
+    }
   }
 }

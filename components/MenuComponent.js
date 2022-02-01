@@ -2,10 +2,10 @@ import React, { Component } from 'react'
 import { Tile } from 'react-native-elements'
 import { FlatList } from 'react-native-gesture-handler'
 import { connect } from 'react-redux'
-import { baseUrl } from '../shared/baseUrl'
 import { View, Text } from 'react-native'
 import Loading from './LoadingComponent'
 import * as Animatable from 'react-native-animatable';
+import { globalStyles } from '../shared/globalStylesheet'
 
 const mapStateToProps = (state) => ({
     dishes: state.dishes,
@@ -25,9 +25,11 @@ class Menu extends Component {
                         key={index}
                         title={item.name}
                         caption={item.description}
+                        titleStyle={globalStyles.title}
+                        captionStyle={globalStyles.text}
                         featured
-                        onPress={() => navigate('DishDetail', { dishId: item.id })}
-                        imageSrc={{ uri: baseUrl + item.image }}
+                        onPress={() => navigate('DishDetail', { dishId: item._id })}
+                        imageSrc={{ uri: item.image }}
                         />
                 </Animatable.View>
             )
@@ -40,7 +42,7 @@ class Menu extends Component {
                 <FlatList 
                 data={dishes}
                 renderItem={renderMenuItem}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item) => item._id.toString()}
                 />        
         )
     }
