@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 import { ScrollView, Switch, TouchableOpacity } from 'react-native-gesture-handler'
-import { StyleSheet, View, Text, Picker, Button, Alert, Platform } from 'react-native'
+import { StyleSheet, View, Text, Picker, Alert, Platform } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import * as Animatable from 'react-native-animatable';
 import { Permissions } from 'react-native-unimodules';
 import { Notifications } from 'expo';
 import * as Calendar from 'expo-calendar'
-import { Icon } from 'react-native-elements';
+import { Button, Icon } from 'react-native-elements';
+import { globalStyles } from '../shared/globalStylesheet';
 export default class Reservation extends Component {
     static navigationOptions = {
         title: 'Reserve Table'
@@ -51,7 +52,7 @@ export default class Reservation extends Component {
     onChangeDate = (e, selectedValue) => {
         if(this.state.mode === 'date'){
             this.setState({
-                datetime: selectedValue,
+                datetime: selectedValue || this.state.datetime,
                 mode: 'time',
                 show: true
             })
@@ -158,7 +159,7 @@ export default class Reservation extends Component {
                     <Text style={styles.formLabel}>Date and Time</Text>
                     <TouchableOpacity onPress={this.showDatePicker} style={{ flexDirection: 'row' }}>
                         <Icon name='calendar-alt' type='font-awesome-5' size={22} color='grey'/> 
-                        <Text>{'  ' + this.state.datetime.toLocaleDateString() + ' ' + this.state.datetime.toLocaleTimeString()}</Text>
+                        <Text style={globalStyles.text}>{'  ' + this.state.datetime.toLocaleDateString() + ' ' + this.state.datetime.toLocaleTimeString()}</Text>
                     </TouchableOpacity>
                     {this.state.show &&
                     <DateTimePicker
@@ -174,8 +175,10 @@ export default class Reservation extends Component {
                 <View style={styles.formRow}>
                     <Button
                         onPress={this.handleSubmit}
+                        raised
                         title='Reserve'
-                        color='#512da8'
+                        buttonStyle={{ backgroundColor: '#512da8' }}
+                        titleStyle={globalStyles.text}
                         accessibilityLabel='Learn more'
                     />
                 </View>
@@ -194,6 +197,7 @@ const styles = StyleSheet.create({
         margin: 20
     },
     formLabel: {
+        fontFamily: 'Quicksand',
         fontSize: 18,
         flex: 2
     },

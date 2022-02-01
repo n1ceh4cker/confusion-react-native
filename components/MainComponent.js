@@ -4,6 +4,7 @@ import Menu from './MenuComponent'
 import DishDetail from './DishDetailComponent'
 import About from './AboutComponent'
 import Contact from './ContactComponent'
+import Loading from './LoadingComponent'
 import { createAppContainer } from 'react-navigation'
 import { createStackNavigator } from 'react-navigation-stack'
 import { createDrawerNavigator, DrawerItems } from 'react-navigation-drawer'
@@ -11,21 +12,28 @@ import { StyleSheet, SafeAreaView, View, Image, Text, ToastAndroid } from 'react
 import { Icon } from 'react-native-elements'
 import { ScrollView } from 'react-native-gesture-handler'
 import { connect } from 'react-redux'
-import { fetchDishes, fetchPromos, fetchLeaders, fetchComments } from '../redux/ActionCreaters'
+import { fetchDishes, fetchPromos, fetchLeaders, fetchComments, requestLogin, receiveLogin, logoutUser, fetchFavorites } from '../redux/ActionCreaters'
 import Reservation from './ReservationComponent'
 import Favorites from './FavoriteComponent'
 import Login from './LoginComponent'
 import NetInfo from '@react-native-community/netinfo'
+import * as SecureStore from 'expo-secure-store';
+import { TouchableOpacity } from 'react-native'
+import { globalStyles } from '../shared/globalStylesheet'
 
 const mapStateToProps = (state) => ({
-
+    auth: state.auth
 })
 
 const mapDispatchToProps = (dispatch) => ({
     fetchDishes: () => dispatch(fetchDishes()),
     fetchPromos: () => dispatch(fetchPromos()),
     fetchLeaders: () => dispatch(fetchLeaders()),
-    fetchComments: () => dispatch(fetchComments())
+    fetchComments: () => dispatch(fetchComments()),
+    fetchFavorites: () => dispatch(fetchFavorites()),
+    requestLogin: (creds) => dispatch(requestLogin(creds)),
+    receiveLogin: (res) => dispatch(receiveLogin(res)),
+    logoutUser: () => dispatch(logoutUser())
 })
 const HomeNavigator = createStackNavigator(
     {
@@ -37,9 +45,7 @@ const HomeNavigator = createStackNavigator(
             backgroundColor: '#512da8'
         },
         headerTintColor: '#fff',
-        headerTitleStyle: {
-            color: '#fff'
-        },
+        headerTitleStyle: globalStyles.subtitle,
         headerLeft: <Icon name='menu' size={24}
                     color='white'
                     containerStyle={{paddingLeft: 10}}
@@ -48,7 +54,7 @@ const HomeNavigator = createStackNavigator(
     })
 })
 
-const LoginNavigator = createStackNavigator(
+const LoginNavigator = createAppContainer(createStackNavigator(
     {
         Login: { screen: Login },
     },
@@ -58,16 +64,13 @@ const LoginNavigator = createStackNavigator(
             backgroundColor: '#512da8'
         },
         headerTintColor: '#fff',
-        headerTitleStyle: {
-            color: '#fff'
-        },
-        headerLeft: <Icon name='menu' size={24}
+        headerTitleStyle: globalStyles.subtitle,
+        headerLeft: <Icon name='lock' size={24}
                     color='white'
                     containerStyle={{paddingLeft: 10}}
-                    onPress={() => navigation.toggleDrawer()}
                     />
     })
-})
+}))
 
 const MenuNavigator = createStackNavigator(
     {
@@ -88,9 +91,7 @@ const MenuNavigator = createStackNavigator(
                 backgroundColor: '#512da8'
             },
             headerTintColor: '#fff',
-            headerTitleStyle: {
-                color: '#fff'
-            }
+            headerTitleStyle: globalStyles.subtitle,
         }
 })
 const AboutNavigator = createStackNavigator(
@@ -103,9 +104,7 @@ const AboutNavigator = createStackNavigator(
             backgroundColor: '#512da8'
         },
         headerTintColor: '#fff',
-        headerTitleStyle: {
-            color: '#fff'
-        },
+        headerTitleStyle: globalStyles.subtitle,
         headerLeft: <Icon name='menu' size={24}
                     color='white'
                     containerStyle={{paddingLeft: 10}}
@@ -123,9 +122,7 @@ const ContactNavigator = createStackNavigator(
             backgroundColor: '#512da8'
         },
         headerTintColor: '#fff',
-        headerTitleStyle: {
-            color: '#fff'
-        },
+        headerTitleStyle: globalStyles.subtitle,
         headerLeft: <Icon name='menu' size={24}
                     color='white'
                     containerStyle={{paddingLeft: 10}}
@@ -143,9 +140,7 @@ const FavoriteNavigator = createStackNavigator(
             backgroundColor: '#512da8'
         },
         headerTintColor: '#fff',
-        headerTitleStyle: {
-            color: '#fff'
-        },
+        headerTitleStyle: globalStyles.subtitle,
         headerLeft: <Icon name='menu' size={24}
                     color='white'
                     containerStyle={{paddingLeft: 10}}
@@ -163,9 +158,7 @@ const ReservationNavigator = createStackNavigator(
             backgroundColor: '#512da8'
         },
         headerTintColor: '#fff',
-        headerTitleStyle: {
-            color: '#fff'
-        },
+        headerTitleStyle: globalStyles.subtitle,
         headerLeft: <Icon name='menu' size={24}
                     color='white'
                     containerStyle={{paddingLeft: 10}}
@@ -178,32 +171,21 @@ const CustomDrawerContent = (props) => (
         <SafeAreaView style={styles.container} forceInset={{ top: 'always', horizontal: 'never'}}>
             <View style={styles.drawerHeader}>
                 <View style={{flex: 1}}>
-                    <Image source={require('./images/logo.png')} style={styles.drawerImage} />
+                    <Image source={require('../assets/images/logo.png')} style={styles.drawerImage} />
                 </View>
                 <View style={{flex: 2}}>
-                    <Text style={styles.drawerHeaderText}>Ristorante Con Fusion</Text>
+                <Text style={{ ...globalStyles.title, color: "#eee"}}>Ristorante Con Fusion</Text>
                 </View>
             </View>
-            <DrawerItems {...props} />
+            <DrawerItems {...props} labelStyle={globalStyles.subtitle} />
+            <TouchableOpacity onPress={props.logoutUser} style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 20 }}>
+                <Icon name='sign-out' type='font-awesome' size={28} color='#666'/>
+                <Text style={{ ...globalStyles.subtitle, marginLeft: 30}}>Logout</Text>
+            </TouchableOpacity>
         </SafeAreaView>
     </ScrollView>
 ) 
 const MainNavigator = createAppContainer(createDrawerNavigator({
-    Login: {
-        screen: LoginNavigator,
-        navigationOptions: {
-            title: 'Login',
-            drawerLabel: 'Login',
-            drawerIcon: ({ tintColor }) => (
-                <Icon 
-                    name='sign-in'
-                    type='font-awesome'
-                    size={24}
-                    color={tintColor}
-                />
-            )
-        }
-    },
     Home: {
         screen: HomeNavigator,
         navigationOptions: {
@@ -297,7 +279,7 @@ const MainNavigator = createAppContainer(createDrawerNavigator({
     {
         drawerBackgroundColor: '#d1c4e9',
         initialRouteName: 'Home',
-        contentComponent: CustomDrawerContent
+        contentComponent: connect(mapStateToProps, mapDispatchToProps)(CustomDrawerContent)
     }
 ))
 
@@ -307,11 +289,26 @@ class Main extends Component {
         this.props.fetchPromos()
         this.props.fetchLeaders()
         this.props.fetchComments()
+        this.getItems()
         NetInfo.fetch()
             .then(connectionInfo => {
                 ToastAndroid.show('Initial Network Connection: ' + connectionInfo.type, ToastAndroid.LONG)
                 NetInfo.addEventListener(this.handleConnectivityChange)
             })
+    }
+    getItems = async () => {
+        const c = await SecureStore.getItemAsync('creds');
+        const creds = c ? JSON.parse(c) : null;
+        const token = await SecureStore.getItemAsync('token');
+        const res = { token };
+        console.log(creds)
+        console.log(token)
+        if (creds && token) {
+            console.log('i was')
+            this.props.requestLogin(creds);
+            this.props.receiveLogin(res);
+            this.props.fetchFavorites();
+        }
     }
     handleConnectivityChange = (connectionInfo) => {
         switch (connectionInfo.type) {
@@ -332,9 +329,21 @@ class Main extends Component {
         }
     }
     render() {
-        return (
-            <MainNavigator />  
-        )
+        if (this.props.auth.isLoading) {
+            return (
+                <Loading />
+            )
+        }         
+        else if (this.props.auth.isAuthenticated) {
+            return (
+                <MainNavigator />  
+            )
+        }               
+        else {
+            return (
+                <LoginNavigator />
+            )
+        }        
     }
 }
 
@@ -349,11 +358,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         flex: 1,
         flexDirection: "row"
-    },
-    drawerHeaderText: {
-        color: 'white',
-        fontSize: 24,
-        fontWeight: 'bold'
     },
     drawerImage: {
         margin: 10,

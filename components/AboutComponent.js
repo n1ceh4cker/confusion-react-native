@@ -3,9 +3,10 @@ import { Text } from 'react-native';
 import { Card, ListItem } from 'react-native-elements';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import { connect } from 'react-redux'
-import { baseUrl } from '../shared/baseUrl';
 import Loading from './LoadingComponent';
 import * as Animatable from 'react-native-animatable';
+import { StyleSheet } from 'react-native';
+import { globalStyles } from '../shared/globalStylesheet';
 
 const mapStateToProps = (state) => ({
     leaders: state.leaders
@@ -16,8 +17,10 @@ const RenderLeaders = ({ leaders, isLoading, errMsg }) => {
             <ListItem
                 title={item.name}
                 subtitle={item.description}
+                titleStyle={globalStyles.subtitle}
+                subtitleStyle={globalStyles.text}
                 hideChevron={true}
-                leftAvatar={{source: { uri: baseUrl + item.image }}}
+                leftAvatar={{source: { uri:  item.image }, size:60}}
             />
         )
     }
@@ -27,7 +30,7 @@ const RenderLeaders = ({ leaders, isLoading, errMsg }) => {
         <FlatList
             data={leaders}
             renderItem={renderLeaderItem}
-            keyExtractor={item => item.id.toString()}
+            keyExtractor={item => item._id.toString()}
         />
     )
 }
@@ -37,11 +40,12 @@ class About extends Component {
         return(
             <ScrollView>
                 <Animatable.View animation='fadeInDown' duration={2000} delay={1000} >
-                    <Card title='Our History'>
-                        <Text>Started in 2010, Ristorante con Fusion quickly established itself as a culinary icon par excellence in Hong Kong. With its unique brand of world fusion cuisine that can be found nowhere else, it enjoys patronage from the A-list clientele in Hong Kong.  Featuring four of the best three-star Michelin chefs in the world, you never know what will arrive on your plate the next time you visit us.</Text>
-                        <Text>The restaurant traces its humble beginnings to The Frying Pan, a successful chain started by our CEO, Mr. Peter Pan, that featured for the first time the world's best cuisines in a pan.</Text>
+                    <Card title='Our History' titleStyle={globalStyles.title} containerStyle={{ padding: 25 }}>
+                        <Text style={globalStyles.text}>Started in 2010, Ristorante con Fusion quickly established itself as a culinary icon par excellence in Hong Kong. With its unique brand of world fusion cuisine that can be found nowhere else, it enjoys patronage from the A-list clientele in Hong Kong.  Featuring four of the best three-star Michelin chefs in the world, you never know what will arrive on your plate the next time you visit us.</Text>
+                        <Text></Text>
+                        <Text style={globalStyles.text}>The restaurant traces its humble beginnings to The Frying Pan, a successful chain started by our CEO, Mr. Peter Pan, that featured for the first time the world's best cuisines in a pan.</Text>
                     </Card>
-                    <Card title='Corporate Leadership'>
+                    <Card title='Corporate Leadership' titleStyle={globalStyles.title}>
                         <RenderLeaders leaders={leaders} isLoading={isLoading} errMsg={errMsg} />
                     </Card>
                 </Animatable.View>

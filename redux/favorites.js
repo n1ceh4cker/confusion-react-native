@@ -1,14 +1,13 @@
 import * as ActionTypes from './ActionTypes'
 
-export const favorites = (state = [], action) => {
-    switch (action.type) {
-        case ActionTypes.ADD_FAVORITE:
-            if(state.some(e => e===action.payload))
-                return state
-            else
-                return [...state, action.payload]
-        case ActionTypes.DELETE_FAVORITE:
-            return state.filter(e => e!==action.payload)
+export const favorites = (state = { isLoading: true, errMsg: null, favorites:[] }, action) => {
+    switch(action.type) {
+        case ActionTypes.ADD_FAVORITES:
+            return {...state, isLoading: false, errMsg: null, favorites: action.payload.dishes}
+        case ActionTypes.FAVORITES_LOADING:
+            return {...state, isLoading: true, errMsg: null, favorites: []}
+        case ActionTypes.FAVORITES_FAILED:
+            return {...state, isLoading: false, errMsg: action.payload, favorites: []}
         default:
             return state
     }
